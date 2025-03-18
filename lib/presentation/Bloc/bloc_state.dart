@@ -6,7 +6,9 @@ class AuthLoading extends AuthState {}
 
 class AuthSuccess extends AuthState {
   final String message;
-  AuthSuccess(this.message);
+  final String email;
+
+  AuthSuccess(this.message, this.email);
 }
 
 class AuthFailure extends AuthState {
