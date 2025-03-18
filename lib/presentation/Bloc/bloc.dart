@@ -18,10 +18,15 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<LoginUser>((event, emit) async {
       emit(AuthLoading());
       final message = await loginUseCase.execute(event.email, event.password);
-      if (message.contains("thành công")) {
-        emit(AuthSuccess(message));
+
+      if (message == "Đăng nhập thành công") {
+        emit(AuthSuccess("Bạn đã đăng nhập thành công!"));
+      } else if (message == "Sai mật khẩu") {
+        emit(AuthFailure("Mật khẩu không đúng, vui lòng thử lại."));
+      } else if (message == "Tài khoản không tồn tại") {
+        emit(AuthFailure("Email này chưa được đăng ký."));
       } else {
-        emit(AuthFailure(message));
+        emit(AuthFailure("Đăng nhập thất bại: $message"));
       }
     });
 
