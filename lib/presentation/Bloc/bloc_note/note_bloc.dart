@@ -37,11 +37,13 @@ class NoteBloc extends Bloc<NoteEvent, NoteState> {
     });
 
     on<DeleteNote>((event, emit) async {
-      try {
+      if (state is NoteLoaded) {
+        final currentState = state as NoteLoaded;
         await noteRepository.deleteNote(event.noteId);
-        add(LoadNotes(event.noteId));
-      } catch (e) {
-        emit(NoteError("Lỗi khi xóa ghi chú."));
+
+        // Cập nhật danh sách mà không tải lại toàn bộ trang
+        final updatedNotes = currentState.notes.where((note) => note.id != event.noteId).toList();
+        emit(NoteLoaded(updatedNotes));
       }
     });
   }

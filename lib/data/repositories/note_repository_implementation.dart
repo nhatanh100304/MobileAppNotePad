@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase/domain/entities/note.dart';
 import 'package:firebase/domain/repositories/note_repository.dart';
+import 'package:flutter/foundation.dart';
 
 class NoteRepositoryImplementation implements NoteRepository {
   final FirebaseFirestore firestore = FirebaseFirestore.instance;
@@ -44,6 +45,26 @@ class NoteRepositoryImplementation implements NoteRepository {
 
   @override
   Future<void> deleteNote(String noteId) async {
-    await firestore.collection("notes").doc(noteId).delete();
+    try {
+      final docRef = firestore.collection("notes").doc(noteId);
+      final doc = await docRef.get();
+
+      if (doc.exists) {
+        await docRef.delete();
+        if (kDebugMode) {
+          print("✅ Note với ID: $noteId đã bị xóa.");
+        }
+      } else {
+        if (kDebugMode) {
+          print("❌ Không tìm thấy Note với ID: $noteId.");
+        }
+        throw Exception("Ghi chú không tồn tại!");
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print("❌ Lỗi khi xóa Note: $e");
+      }
+      throw Exception("Lỗi khi xóa ghi chú: ${e.toString()}");
+    }
   }
 }
