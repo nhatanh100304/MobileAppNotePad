@@ -35,10 +35,23 @@ class AuthRepositoryImplementation implements AuthRepository {
   @override
   Future<String> login(String email, String password) async {
     try {
+      UserCredential userCredential =
       await _auth.signInWithEmailAndPassword(email: email, password: password);
-      return "Đăng nhập thành công";
+
+      // ✅ Lấy UID của user sau khi đăng nhập thành công
+      String uid = userCredential.user!.uid;
+      return uid;
+    } on FirebaseAuthException catch (e) {
+      // ✅ Xử lý lỗi chi tiết hơn
+      if (e.code == 'user-not-found') {
+        return "Lỗi đăng nhập: Tài khoản không tồn tại.";
+      } else if (e.code == 'wrong-password') {
+        return "Lỗi đăng nhập: Sai mật khẩu.";
+      } else {
+        return "Lỗi đăng nhập: ${e.message}";
+      }
     } catch (e) {
-      return e.toString();
+      return "Lỗi đăng nhập: ${e.toString()}";
     }
   }
 

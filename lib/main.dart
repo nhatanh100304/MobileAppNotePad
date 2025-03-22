@@ -9,7 +9,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'data/repositories/users_repository_implementation.dart';
 import 'domain/repositories/auth_repository.dart';
+import 'domain/usecase/get_user_profile_usecase.dart';
 import 'domain/usecase/login_usecase.dart';
+import 'domain/usecase/update_user_profile_usecase.dart';
 import 'firebase_options.dart';
 import 'data/repositories/auth_repository_implementation.dart';
 
@@ -26,13 +28,14 @@ void main() async {
   final userRepository = UserRepositoryImplementation();
   final authRepository = AuthRepositoryImplementation(userRepository);
 
-  runApp(MyApp(authRepository: authRepository));
+  runApp(MyApp(authRepository: authRepository, userRepository: userRepository));
 }
 
 class MyApp extends StatelessWidget {
   final AuthRepository authRepository;
+  final UserRepository userRepository;
 
-  const MyApp({super.key, required this.authRepository});
+  const MyApp({super.key, required this.authRepository, required this.userRepository});
 
   @override
   Widget build(BuildContext context) {
@@ -43,6 +46,8 @@ class MyApp extends StatelessWidget {
             LoginUseCase(authRepository),
             RegisterUseCase(authRepository),
             LogoutUseCase(authRepository),
+            GetUserProfileUseCase(userRepository),
+            UpdateUserProfileUseCase(userRepository),
           ),
         ),
       ],
@@ -50,9 +55,9 @@ class MyApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         initialRoute: "/login",
         routes: {
-          "/login": (context) => LoginPage(),
-          "/register": (context) => RegisterPage(),
-          "/home": (context) => HomePage(),
+          "/login": (context) => const LoginPage(),
+          "/register": (context) => const RegisterPage(),
+          "/home": (context) => const HomePage(),
         },
       ),
     );

@@ -9,11 +9,11 @@ class LoginUseCase {
 
   Future<String> execute(String email, String password) async {
     try {
-      await FirebaseAuth.instance.signInWithEmailAndPassword(
+      final userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: email,
         password: password,
       );
-      return "Đăng nhập thành công";
+      return userCredential.user?.uid ?? "Đăng nhập thất bại";
     } on FirebaseAuthException catch (e) {
       return Failure.mapAuthError(e.code, e.message ?? "").message;
     }
