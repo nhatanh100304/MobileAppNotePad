@@ -3,8 +3,11 @@ import 'package:firebase/presentation/Bloc/bloc_event.dart';
 import 'package:firebase/presentation/Bloc/bloc_state.dart';
 import 'package:firebase/presentation/view/edit_profile_page.dart';
 import 'package:firebase/presentation/view/login_page.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
+import 'note_list_page.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -25,7 +28,26 @@ class HomePage extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => EditProfilePage(uid: authBloc.currentUid!), // ✅ Sử dụng UID từ AuthBloc
+                    builder: (context) => EditProfilePage(uid: authBloc.currentUid!),
+                  ),
+                );
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text("Lỗi: Không tìm thấy UID!")),
+                );
+              }
+            },
+          ),
+
+          // 🔹 Nút mở Notepad
+          IconButton(
+            icon: const Icon(Icons.note),
+            onPressed: () {
+              if (authBloc.currentUid != null && authBloc.currentUid!.isNotEmpty) {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => NotepadListPage(userId: authBloc.currentUid!),
                   ),
                 );
               } else {
