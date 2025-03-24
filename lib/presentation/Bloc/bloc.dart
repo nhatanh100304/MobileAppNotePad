@@ -30,7 +30,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     // 🔹 ĐĂNG NHẬP
     on<LoginUser>((event, emit) async {
       emit(AuthLoading());
-      final uid = await loginUseCase.execute(event.email, event.password);
+      final uid = await loginUseCase.call(event.email, event.password);
 
       if (uid.isNotEmpty && !uid.startsWith("Lỗi đăng nhập")) {
         currentUid = uid;

@@ -15,6 +15,7 @@ import 'domain/repositories/auth_repository.dart';
 import 'domain/usecase/profile/get_user_profile_usecase.dart';
 import 'domain/usecase/login_usecase.dart';
 import 'domain/usecase/profile/update_user_profile_usecase.dart';
+import 'domain/usecase/profile/verifycredentials_usecase.dart';
 import 'firebase_options.dart';
 import 'data/repositories/auth_repository_implementation.dart';
 
@@ -47,7 +48,8 @@ class MyApp extends StatelessWidget {
       providers: [
         BlocProvider(
           create: (context) => AuthBloc(
-            LoginUseCase(authRepository),
+            LoginUseCase(
+                authRepository, VerifyCredentialsUseCase(authRepository)),
             RegisterUseCase(authRepository),
             LogoutUseCase(authRepository),
             GetUserProfileUseCase(userRepository),

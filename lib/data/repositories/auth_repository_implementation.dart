@@ -59,4 +59,19 @@ class AuthRepositoryImplementation implements AuthRepository {
   Future<void> logout() async {
     await _auth.signOut();
   }
+
+
+
+  @override
+  Future<bool> verifyCredentials(String email, String password) async {
+    try {
+      await _auth.signInWithEmailAndPassword(email: email, password: password);
+      await _auth.signOut(); // ✅ Đăng xuất ngay để không giữ phiên
+      return true;
+    } on FirebaseAuthException catch (e) {
+      return false; // ❌ Sai tài khoản hoặc mật khẩu
+    } catch (e) {
+      throw Exception("Lỗi xác thực: ${e.toString()}");
+    }
+  }
 }
