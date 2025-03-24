@@ -30,12 +30,15 @@ class _EditProfilePageState extends State<EditProfilePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.grey[900], // Nền tối
       appBar: AppBar(
         title: const Text("Chỉnh sửa hồ sơ"),
+        backgroundColor: Colors.blueGrey[900],
+        elevation: 4,
         actions: [
           IconButton(
-            icon: const Icon(Icons.close),
-            onPressed: () => Navigator.pop(context), // Đóng trang
+            icon: const Icon(Icons.close, color: Colors.white),
+            onPressed: () => Navigator.pop(context),
           ),
         ],
       ),
@@ -43,11 +46,17 @@ class _EditProfilePageState extends State<EditProfilePage> {
         listener: (context, state) {
           if (state is UserProfileUpdated) {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.message)),
+              SnackBar(
+                content: Text(state.message),
+                backgroundColor: Colors.green,
+              ),
             );
           } else if (state is AuthFailure) {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.error)),
+              SnackBar(
+                content: Text(state.error),
+                backgroundColor: Colors.redAccent,
+              ),
             );
           }
         },
@@ -55,48 +64,43 @@ class _EditProfilePageState extends State<EditProfilePage> {
           if (state is AuthLoading) {
             return const Center(child: CircularProgressIndicator());
           } else if (state is UserProfileLoaded) {
-            // Cập nhật dữ liệu vào các controller
             emailController.text = state.userProfile.email ?? "";
             phoneController.text = state.userProfile.phoneNumber ?? "";
             addressController.text = state.userProfile.address ?? "";
 
             return Padding(
-              padding: const EdgeInsets.all(16.0),
+              padding: const EdgeInsets.all(20.0),
               child: Column(
                 children: [
-                  TextField(
-                    controller: emailController,
-                    decoration: const InputDecoration(labelText: "Email"),
-                  ),
-                  TextField(
-                    controller: phoneController,
-                    decoration: const InputDecoration(labelText: "Số điện thoại"),
-                  ),
-                  TextField(
-                    controller: addressController,
-                    decoration: const InputDecoration(labelText: "Địa chỉ"),
-                  ),
-                  const SizedBox(height: 20),
+                  _buildTextField(emailController, "Email", Icons.email),
+                  _buildTextField(phoneController, "Số điện thoại", Icons.phone),
+                  _buildTextField(addressController, "Địa chỉ", Icons.home),
+                  const SizedBox(height: 30),
+
+                  // Nút Lưu và Hủy
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      ElevatedButton(
+                      ElevatedButton.icon(
+                        icon: const Icon(Icons.save),
                         onPressed: () {
                           UserProfile updatedProfile = UserProfile(
-                            uid: widget.uid ?? "", // ✅ Đảm bảo UID không null
+                            uid: widget.uid ?? "",
                             email: emailController.text,
                             phoneNumber: phoneController.text,
                             address: addressController.text,
-                            profilePicture: state.userProfile.profilePicture ?? "", // ✅ Tránh null
+                            profilePicture: state.userProfile.profilePicture ?? "",
                           );
-
                           context.read<AuthBloc>().add(UpdateUserProfile(updatedProfile));
                         },
-                        child: const Text("Lưu"),
+                        style: _buttonStyle(Colors.blueAccent),
+                        label: const Text("Lưu"),
                       ),
-                      OutlinedButton(
-                        onPressed: () => Navigator.pop(context), // Quay lại mà không lưu
-                        child: const Text("Hủy"),
+                      OutlinedButton.icon(
+                        icon: const Icon(Icons.cancel),
+                        onPressed: () => Navigator.pop(context),
+                        style: _buttonStyle(Colors.grey),
+                        label: const Text("Hủy"),
                       ),
                     ],
                   ),
@@ -104,10 +108,53 @@ class _EditProfilePageState extends State<EditProfilePage> {
               ),
             );
           } else if (state is AuthFailure) {
-            return Center(child: Text(state.error));
+            return Center(
+              child: Text(
+                state.error,
+                style: const TextStyle(color: Colors.redAccent, fontSize: 16),
+              ),
+            );
           }
-          return const Center(child: Text("Không có dữ liệu hồ sơ."));
+          return const Center(
+            child: Text(
+              "Không có dữ liệu hồ sơ.",
+              style: TextStyle(color: Colors.white, fontSize: 16),
+            ),
+          );
         },
+      ),
+    );
+  }
+
+  // Hàm tạo TextField có Icon
+  Widget _buildTextField(TextEditingController controller, String label, IconData icon) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 10),
+      child: TextField(
+        controller: controller,
+        style: const TextStyle(color: Colors.white),
+        decoration: InputDecoration(
+          labelText: label,
+          prefixIcon: Icon(icon, color: Colors.white70),
+          filled: true,
+          fillColor: Colors.blueGrey[800],
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide.none,
+          ),
+          labelStyle: const TextStyle(color: Colors.white70),
+        ),
+      ),
+    );
+  }
+
+  // Hàm style cho nút bấm
+  ButtonStyle _buttonStyle(Color color) {
+    return ElevatedButton.styleFrom(
+      backgroundColor: color,
+      padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 12),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10),
       ),
     );
   }
