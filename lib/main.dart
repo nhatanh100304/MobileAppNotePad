@@ -8,10 +8,10 @@ import 'package:firebase/presentation/view/login_page.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
 import 'data/repositories/note_repository_implementation.dart';
 import 'data/repositories/users_repository_implementation.dart';
 import 'domain/repositories/auth_repository.dart';
+import 'domain/repositories/note_repository.dart';
 import 'domain/usecase/profile/get_user_profile_usecase.dart';
 import 'domain/usecase/login_usecase.dart';
 import 'domain/usecase/profile/update_user_profile_usecase.dart';
@@ -31,36 +31,46 @@ void main() async {
 
   final userRepository = UserRepositoryImplementation();
   final authRepository = AuthRepositoryImplementation(userRepository);
+  final noteRepository = NoteRepositoryImplementation();
 
-  runApp(MyApp(authRepository: authRepository, userRepository: userRepository));
+  runApp(MyApp(
+      authRepository: authRepository,
+      userRepository: userRepository,
+      noteRepository: noteRepository));
 }
 
 class MyApp extends StatelessWidget {
   final AuthRepository authRepository;
   final UserRepository userRepository;
+  final NoteRepository noteRepository;
 
-  const MyApp(
-      {super.key, required this.authRepository, required this.userRepository});
+  const MyApp({
+    super.key,
+    required this.authRepository,
+    required this.userRepository,
+    required this.noteRepository,
+  });
 
   @override
   Widget build(BuildContext context) {
+    final List<BlocProvider> providers = [
+      BlocProvider<AuthBloc>(
+        create: (context) => AuthBloc(
+          LoginUseCase(
+              authRepository, VerifyCredentialsUseCase(authRepository)),
+          RegisterUseCase(authRepository),
+          LogoutUseCase(authRepository),
+          GetUserProfileUseCase(userRepository),
+          UpdateUserProfileUseCase(userRepository),
+        ),
+      ),
+      BlocProvider<NoteBloc>(
+        create: (context) => NoteBloc(noteRepository)..add(LoadNotes("userId")),
+      ),
+    ];
+
     return MultiBlocProvider(
-      providers: [
-        BlocProvider(
-          create: (context) => AuthBloc(
-            LoginUseCase(
-                authRepository, VerifyCredentialsUseCase(authRepository)),
-            RegisterUseCase(authRepository),
-            LogoutUseCase(authRepository),
-            GetUserProfileUseCase(userRepository),
-            UpdateUserProfileUseCase(userRepository),
-          ),
-        ),
-        BlocProvider(
-          create: (context) => NoteBloc(NoteRepositoryImplementation())
-            ..add(LoadNotes("userId")), // Thêm NoteBloc mới
-        ),
-      ],
+      providers: providers,
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         initialRoute: "/login",

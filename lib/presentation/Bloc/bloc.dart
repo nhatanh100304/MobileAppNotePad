@@ -1,5 +1,4 @@
 import 'package:firebase/domain/entities/failure.dart';
-import 'package:firebase/domain/entities/user_profile.dart';
 import 'package:firebase/domain/usecase/profile/get_user_profile_usecase.dart';
 import 'package:firebase/domain/usecase/login_usecase.dart';
 import 'package:firebase/domain/usecase/logout_usecase.dart';
